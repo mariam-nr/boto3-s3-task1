@@ -158,3 +158,25 @@ def upload_large_file(aws_s3_client, filename, bucket_name,
     )
     print(f"  Uploaded (large/multipart): '{filename}' → s3://{bucket_name}/{object_name}")
     return True
+
+
+# ── NEW: delete object ───────────────────────────────────────────────────────
+
+def delete_object(aws_s3_client, bucket_name, object_key):
+    """
+    Delete a specific object from an S3 bucket by its key (file name).
+
+    Parameters
+    ----------
+    bucket_name : the S3 bucket containing the object
+    object_key  : the exact key (file name/path) of the object to delete
+    """
+    response = aws_s3_client.delete_object(
+        Bucket=bucket_name,
+        Key=object_key,
+    )
+    status_code = response["ResponseMetadata"]["HTTPStatusCode"]
+    if status_code == 204:
+        print(f"  Deleted: s3://{bucket_name}/{object_key}")
+        return True
+    return False

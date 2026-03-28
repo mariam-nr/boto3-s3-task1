@@ -83,6 +83,18 @@ python main.py --bucket_name my-bucket --lifecycle_policy
 
 ---
 
+
+### Delete a specific object from a bucket
+Deletes a single object identified by its key (file name) from the bucket.
+```bash
+# short
+python main.py -bn my-bucket -del -fn photo.jpg
+
+# long
+python main.py --bucket_name my-bucket --delete_object --file_name photo.jpg
+```
+
+---
 ## Project structure
 
 ```
@@ -108,5 +120,5 @@ python main.py --bucket_name my-bucket --lifecycle_policy
 |------|--------|
 | `object/crud.py` | Fixed broken `upload_file()`, added `upload_large_file()`, added `validate_mime_type()` |
 | `bucket/lifecycle.py` | New file — `set_lifecycle_policy()` |
-| `main.py` | Added `-uf`, `-ulf`, `-fp`, `-vm`, `-lcp` arguments and handlers |
+| `main.py` | Added `-uf`, `-ulf`, `-fp`, `-vm`, `-lcp`, `-del`, `-fn` arguments and handlers |
 | `README.md` | Updated with full documentation |

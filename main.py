@@ -9,6 +9,7 @@ from object.crud import (
     get_objects,
     upload_file,
     upload_large_file,
+    delete_object,
 )
 from bucket.encryption import set_bucket_encryption, read_bucket_encryption
 import argparse
@@ -50,6 +51,9 @@ parser = argparse.ArgumentParser(
 
     How to set lifecycle policy (auto-delete objects after 120 days):
         python main.py -bn my-bucket -lcp
+
+    How to delete a specific object from a bucket:
+        python main.py -bn my-bucket -del -fn photo.jpg
     """,
     prog="main.py",
     epilog="DEMO APP FOR BTU_AWS",
@@ -247,6 +251,25 @@ parser.add_argument(
 )
 
 
+
+parser.add_argument(
+    "-fn",
+    "--file_name",
+    type=str,
+    help="The key (file name) of the object in S3. Used with -del.",
+    default=None,
+)
+
+parser.add_argument(
+    "-del",
+    "--delete_object",
+    type=str,
+    help="Delete a specific object from the bucket by its key. Requires -bn and -fn.",
+    nargs="?",
+    const="True",
+    default="False",
+)
+
 # ── main ─────────────────────────────────────────────────────────────────────
 
 def main():
@@ -325,6 +348,12 @@ def main():
         if args.lifecycle_policy == "True":
             set_lifecycle_policy(s3_client, args.bucket_name, days=120)
 
+
+        # ── NEW: delete object ───────────────────────────────────────────────
+        if args.delete_object == "True":
+            if not args.file_name:
+                parser.error("-del / --delete_object requires -fn / --file_name")
+            delete_object(s3_client, args.bucket_name, args.file_name)
     if args.list_buckets:
         buckets = list_buckets(s3_client)
         if buckets:
