@@ -84,17 +84,42 @@ python main.py --bucket_name my-bucket --lifecycle_policy
 ---
 
 
+## Task 2 — Delete Object
+
 ### Delete a specific object from a bucket
 Deletes a single object identified by its key (file name) from the bucket.
 ```bash
-# short
 python main.py -bn my-bucket -del -fn photo.jpg
-
-# long
-python main.py --bucket_name my-bucket --delete_object --file_name photo.jpg
 ```
 
 ---
+
+## Task 3 — Versioning
+
+### Check if versioning is enabled on a bucket
+```bash
+python main.py -bn my-bucket -bv
+```
+Output example: `Versioning status for 'my-bucket': Enabled`
+
+---
+
+### List all versions of a file
+Shows the number of versions, each version ID, and its creation date.
+```bash
+python main.py -bn my-bucket -lv -fn photo.jpg
+```
+
+---
+
+### Restore the previous version of a file
+Copies the previous version on top of the current one, making it the new latest version.
+```bash
+python main.py -bn my-bucket -rv -fn photo.jpg
+```
+
+---
+
 ## Project structure
 
 ```
@@ -120,5 +145,6 @@ python main.py --bucket_name my-bucket --delete_object --file_name photo.jpg
 |------|--------|
 | `object/crud.py` | Fixed broken `upload_file()`, added `upload_large_file()`, added `validate_mime_type()` |
 | `bucket/lifecycle.py` | New file — `set_lifecycle_policy()` |
-| `main.py` | Added `-uf`, `-ulf`, `-fp`, `-vm`, `-lcp`, `-del`, `-fn` arguments and handlers |
+| `bucket/versioning.py` | New file — `get_bucket_versioning()`, `list_object_versions()`, `restore_previous_version()` |
+| `main.py` | Added `-uf`, `-ulf`, `-fp`, `-vm`, `-lcp`, `-del`, `-fn`, `-bv`, `-lv`, `-rv` arguments and handlers |
 | `README.md` | Updated with full documentation |

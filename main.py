@@ -4,6 +4,7 @@ from auth import init_client
 from bucket.crud import list_buckets, create_bucket, delete_bucket, bucket_exists
 from bucket.policy import read_bucket_policy, assign_policy
 from bucket.lifecycle import set_lifecycle_policy
+from bucket.versioning import get_bucket_versioning, list_object_versions, restore_previous_version
 from object.crud import (
     download_file_and_upload_to_s3,
     get_objects,
@@ -54,6 +55,15 @@ parser = argparse.ArgumentParser(
 
     How to delete a specific object from a bucket:
         python main.py -bn my-bucket -del -fn photo.jpg
+
+    How to check if versioning is enabled on a bucket:
+        python main.py -bn my-bucket -bv
+
+    How to list all versions of a file:
+        python main.py -bn my-bucket -lv -fn photo.jpg
+
+    How to restore the previous version of a file:
+        python main.py -bn my-bucket -rv -fn photo.jpg
     """,
     prog="main.py",
     epilog="DEMO APP FOR BTU_AWS",
@@ -270,6 +280,36 @@ parser.add_argument(
     default="False",
 )
 
+parser.add_argument(
+    "-bv",
+    "--bucket_versioning",
+    type=str,
+    help="Check if versioning is enabled on the bucket. Requires -bn.",
+    nargs="?",
+    const="True",
+    default="False",
+)
+
+parser.add_argument(
+    "-lv",
+    "--list_versions",
+    type=str,
+    help="List all versions of a file with creation dates. Requires -bn and -fn.",
+    nargs="?",
+    const="True",
+    default="False",
+)
+
+parser.add_argument(
+    "-rv",
+    "--restore_version",
+    type=str,
+    help="Restore the previous version of a file as the new version. Requires -bn and -fn.",
+    nargs="?",
+    const="True",
+    default="False",
+)
+
 # ── main ─────────────────────────────────────────────────────────────────────
 
 def main():
@@ -354,6 +394,22 @@ def main():
             if not args.file_name:
                 parser.error("-del / --delete_object requires -fn / --file_name")
             delete_object(s3_client, args.bucket_name, args.file_name)
+        # ── NEW: check bucket versioning ────────────────────────────────────
+        if args.bucket_versioning == "True":
+            get_bucket_versioning(s3_client, args.bucket_name)
+
+        # ── NEW: list object versions ────────────────────────────────────────
+        if args.list_versions == "True":
+            if not args.file_name:
+                parser.error("-lv / --list_versions requires -fn / --file_name")
+            list_object_versions(s3_client, args.bucket_name, args.file_name)
+
+        # ── NEW: restore previous version ────────────────────────────────────
+        if args.restore_version == "True":
+            if not args.file_name:
+                parser.error("-rv / --restore_version requires -fn / --file_name")
+            restore_previous_version(s3_client, args.bucket_name, args.file_name)
+
     if args.list_buckets:
         buckets = list_buckets(s3_client)
         if buckets:
